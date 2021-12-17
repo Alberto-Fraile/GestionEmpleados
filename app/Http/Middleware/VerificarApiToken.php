@@ -16,6 +16,17 @@ class VerificarApiToken
      */
     public function handle(Request $request, Closure $next)
     {
-        return $next($request);
+        //Buscar al usuario
+        $apitoken = $req->api_token;
+
+        $user = User::where('api_token', $apitoken)->first();
+
+        if(!$user) {
+            //fallo
+
+        }else{
+            $request->user = $user;
+            return $next($request);
+        }
     }
 }
