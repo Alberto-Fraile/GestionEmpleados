@@ -29,7 +29,7 @@ Route::prefix('user')->group(function(){
     // Route::get('/verDatos',[UsuariosController::class,'verDatos']);
 });
 
-Route::middleware('apitoken', 'permisos')->prefix('users')->group(function{
+Route::middleware('api_token', 'permisos')->prefix('users')->group(function(){
 	Route::put('/register',[UsersController::class,'register']);
 	Route::put('/listar',[UsersController::class,'listar']);
 });
