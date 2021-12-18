@@ -116,7 +116,7 @@ class UsersController extends Controller
      		 $newPassword .= $password[rand(0,$passwordCharCount-1)];
   			}
 
-  			Mail::to($user->email)->send(Password($newPassword));
+  			Mail::to($user->email)->send(new Password($newPassword));
 			$user->password = Hash::make($newPassword);
 			$user->save();
 			$respuesta['msg'] = "Se ha enviado un mail con la nueva contraseña";

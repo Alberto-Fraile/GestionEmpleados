@@ -20,7 +20,7 @@ class Password extends Mailable
      */
     public function __construct($password)
     {
-        this->password = $password
+        $this->password = $password;
     }
 
     /**
