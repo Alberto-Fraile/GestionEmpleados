@@ -20,16 +20,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 
+Route::post('/login',[UsersController::class,'login']);
+
 Route::prefix('user')->group(function(){
-    Route::put('/register',[UsersController::class,'register']);
-    Route::put('/login/{email}/{password}',[UsersController::class,'login']);
-    // Route::post('/recoveredPassword',[UsuariosController::class,'recoveredPassword']);
-    // Route::get('/listarEmpleados',[UsuariosController::class,'listarEmpleados']);
-    // Route::post('/detalleEmpleados',[UsuariosController::class,'detalleEmpleados']);
-    // Route::get('/verDatos',[UsuariosController::class,'verDatos']);
+    Route::post('/recuperarPassword',[UsersController::class,'recuperarPassword']);
+    //Route::put('/register',[UsersController::class,'register']);
 });
 
-Route::middleware('api_token', 'permisos')->prefix('users')->group(function(){
+Route::middleware('api_token', 'permisos')->prefix('user')->group(function(){
 	Route::put('/register',[UsersController::class,'register']);
-	Route::put('/listar',[UsersController::class,'listar']);
+	Route::get('/listar',[UsersController::class,'listar']);
 });
+
+Route::middleware('api_token')->prefix('user')->group(function(){
+    Route::get('/verPerfil',[UsersController::class,'verPerfil']);
+});   

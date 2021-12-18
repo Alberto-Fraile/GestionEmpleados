@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class VerificarApiToken
 {
@@ -17,12 +18,13 @@ class VerificarApiToken
     public function handle(Request $request, Closure $next)
     {
         //Buscar al usuario
-        $apitoken = $req->api_token;
+        $apitoken = $request->api_token;
 
         $user = User::where('api_token', $apitoken)->first();
 
         if(!$user) {
-            //fallo
+            $request['status'] = 0;
+            $request['msg'] = "Se ha producido un error: ".$e->getMessage();  
 
         }else{
             $request->user = $user;

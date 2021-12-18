@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\Models\User;
 
 class ValidarPermisoUsuario
 {
@@ -16,6 +17,13 @@ class ValidarPermisoUsuario
      */
     public function handle(Request $request, Closure $next)
     {
-        return $next($request);
+        //Comprobar los permisos
+        if($request->user->puesto == 'directivo' || $request->user->puesto == 'rrhh'){
+            return $next($request);
+        }else {
+            $respuesta['status'] = 0;
+            $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage(); 
+        }
+        return response()->json($respuesta);
     }
 }
