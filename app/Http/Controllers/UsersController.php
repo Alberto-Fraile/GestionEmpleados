@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use App\Mail\Password;
+use Illuminate\Support\MessageBag;
 
 class UsersController extends Controller
 {
@@ -92,41 +93,44 @@ class UsersController extends Controller
 		return response()->json($respuesta);
     }
 
-    public function recuperarPassword(Request $req){ 
-		$respuesta = ["status" => 1, "msg" => ""];
+	public function recuperarPassword(Request $req){ 
+	    $respuesta = ["status" => 1, "msg" => ""];
 
-		$datos = $req->getContent();
-		$datos = json_decode($datos);
+	    $datos = $req->getContent();
+	    $datos = json_decode($datos);
 
-		$email = $req->email;
-		
-		//Encontrar al usuario con ese email
-		$user = User::where('email', '=', $datos->email)->first();
-		
-		//Pasar la vadilación
-		if($user){
-			//Si encontramos al usuario
-			$user->api_token = null;
+	    $email = $datos->email;
+	    
+	    
+	    //Pasar la vadilación
+	    if($user = User::where('email', '=', $datos->email)->first()){
 
-   			$password = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNñÑoOpPqQrRsStTuUvVwWxXyYzZ0123456789";
-   			$passwordCharCount = strlen($password);
-   			$passwordLength = 8;
-   			$newPassword = "";
-   			for($i=0;$i<$passwordLength;$i++) {
-     		 $newPassword .= $password[rand(0,$passwordCharCount-1)];
-  			}
+	        //Encontrar al usuario con ese email
+	        $user = User::where('email', '=', $datos->email)->first();
+	    
+	        //Si encontramos al usuario
+	        $user->api_token = null;
 
-  			Mail::to($user->email)->send(new Password($newPassword));
-			$user->password = Hash::make($newPassword);
-			$user->save();
-			$respuesta['msg'] = "Se ha enviado un mail con la nueva contraseña";
+	           $password = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNñÑoOpPqQrRsStTuUvVwWxXyYzZ0123456789";
+	           $passwordCharCount = strlen($password);
+	           $passwordLength = 8;
+	           $newPassword = "";
+	           for($i=0;$i<$passwordLength;$i++) {
+	          $newPassword .= $password[rand(0,$passwordCharCount-1)];
+	          }
+	          $user->password = Hash::make($newPassword);
+	          $user->save();
 
-   		}else{
-			$respuesta['status'] = 0;
+	        Mail::to($user->email)->send(new Password($newPassword));
+	        
+	        $respuesta['msg'] = "Se ha enviado un mail con la nueva contraseña";
+
+	    }else{
+	        $respuesta['status'] = 0;
 	        $respuesta['msg'] = "Se ha producido un error: ";
-   		}
-   		return response()->json($respuesta);
-    }
+	   } 
+	       return response()->json($respuesta);
+	}
 
     public function verPerfil(Request $req){
 
@@ -141,6 +145,52 @@ class UsersController extends Controller
         }
         return response()->json($respuesta);
     }
-}
 
+	public function listar(Request $req){
+
+		$respuesta = ["status" => 1, "msg" => ""];
+        $datos = $req->getContent();
+        $datos = json_decode($datos);
+
+        //Buscar el email
+        $apitoken = $datos->api_token;
+    
+        //Validacion
+	        
+        try{
+            if(User::where('api_token', '=', $datos->api_token)->first()){
+
+                $user = User::where('api_token',$apitoken)->first();
+                
+                //verificamos el cargo del solicitante
+                if($user->puesto == 'directivo'){
+
+                    $users = DB::table('users')
+                    ->select(['name','puesto','salario'])
+                    ->where('users.puesto' ,'like', "rrhh")
+                    ->orwhere('users.puesto' ,'like', "empleado")
+                    ->get();
+
+                }else{
+                    $users = DB::table('users')
+                    ->select(['name','puesto','salario'])
+                    ->where('users.puesto' ,'like', "empleado")
+                    ->get();
+                }
+
+                $respuesta['msg'] = $users;
+                
+            }else{
+                
+                $respuesta['msg'] = "Token invalido";
+            }
+            
+        }catch(\Exception $e){
+            $respuesta['status'] = 0;
+            $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage();
+        }
+
+	    return response()->json($respuesta);
+	}
+}	
 

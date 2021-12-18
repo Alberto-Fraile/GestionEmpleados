@@ -24,7 +24,7 @@ class VerificarApiToken
 
         if(!$user) {
             $request['status'] = 0;
-            $request['msg'] = "Se ha producido un error: ".$e->getMessage();  
+            $request['msg'] = "Se ha producido un error: ";  
 
         }else{
             $request->user = $user;
