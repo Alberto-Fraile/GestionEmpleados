@@ -7,7 +7,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class recuperarPassword extends Mailable
+class Password extends Mailable
 {
     use Queueable, SerializesModels;
 
