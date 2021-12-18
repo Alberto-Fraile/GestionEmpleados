@@ -93,23 +93,32 @@ class UsersController extends Controller
     }
 
     public function recuperarPassword(Request $req){ 
+		$respuesta = ["status" => 1, "msg" => ""];
+
 		$datos = $req->getContent();
-    	
+		$datos = json_decode($datos);
+
 		$email = $datos->email;
-		//Validar
-
+		
 		//Encontrar al usuario con ese email
-
 		$user = User::where('email', $email)->first();
-
+		
 		//Pasar la vadilación
+		if($user){
+			//Si encontramos al usuario
+			$user->api_token = null;
 
-		//Si encontramos al usuario
-		$user->api_token = null;
+			$password = ;
 
-		//$password = /*genera aleatoria*/;
+			$user->password = Hash::make($password);
+			$user->save();
+			$respuesta['msg'] = "Se ha enviado un mail de recuperación";
 
-		$user->password = Hash::make($password);
+   		}else{
+			$respuesta['status'] = 0;
+	        $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage();
+   		}
+   		return response()->json($respuesta);
     }
 }
 

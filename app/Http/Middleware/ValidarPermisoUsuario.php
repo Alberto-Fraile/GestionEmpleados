@@ -21,9 +21,9 @@ class ValidarPermisoUsuario
         if($request->user->puesto == 'directivo' || $request->user->puesto == 'rrhh'){
             return $next($request);
         }else {
-            $respuesta['status'] = 0;
-            $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage(); 
+            $request['status'] = 0;
+            $request['msg'] = "No tienes permisos para realizar esta funcion "; 
         }
-        return response()->json($respuesta);
+        return response()->json($request);
     }
 }
