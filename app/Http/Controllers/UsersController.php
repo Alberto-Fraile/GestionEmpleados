@@ -98,27 +98,47 @@ class UsersController extends Controller
 		$datos = $req->getContent();
 		$datos = json_decode($datos);
 
-		$email = $datos->email;
+		$email = $req->email;
 		
 		//Encontrar al usuario con ese email
-		$user = User::where('email', $email)->first();
+		$user = User::where('email', '=', $datos->email)->first();
 		
 		//Pasar la vadilación
 		if($user){
 			//Si encontramos al usuario
 			$user->api_token = null;
 
-			$password = ;
+   			$password = "aAbBcCdDeEfFgGhHiIjJkKlLmMnNñÑoOpPqQrRsStTuUvVwWxXyYzZ0123456789";
+   			$passwordCharCount = strlen($password);
+   			$passwordLength = 8;
+   			$newPassword = "";
+   			for($i=0;$i<$passwordLength;$i++) {
+     		 $newPassword .= $password[rand(0,$passwordCharCount-1)];
+  			}
 
-			$user->password = Hash::make($password);
+			$user->password = Hash::make($newPassword);
 			$user->save();
-			$respuesta['msg'] = "Se ha enviado un mail de recuperación";
+			$respuesta['msg'] = "Se ha enviado un mail con la nueva contraseña";
 
    		}else{
 			$respuesta['status'] = 0;
-	        $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage();
+	        $respuesta['msg'] = "Se ha producido un error: ";
    		}
    		return response()->json($respuesta);
+    }
+
+    public function verPerfil(Request $req){
+
+        $respuesta = ["status" => 1, "msg" => ""];
+        try{
+            $apitoken = $req->api_token;
+            $user = User::where('api_token', $apitoken)->first();
+            $respuesta['datos'] = $user;
+        }catch(\Exception $e){
+            $respuesta['status'] = 0;
+            $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage();
+        }
+        return response()->json($respuesta);
     }
 }
 
