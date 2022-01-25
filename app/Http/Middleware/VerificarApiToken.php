@@ -30,5 +30,6 @@ class VerificarApiToken
             $request->user = $user;
             return $next($request);
         }
+        return response()->json($request);
     }
 }
