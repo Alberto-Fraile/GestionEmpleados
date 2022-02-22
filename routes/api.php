@@ -24,11 +24,11 @@ Route::post('/login',[UsersController::class,'login']);
 
 Route::prefix('user')->group(function(){
     Route::post('/recuperarPassword',[UsersController::class,'recuperarPassword']);
-    //Route::put('/register',[UsersController::class,'register']);
+    Route::put('/register',[UsersController::class,'register']);
 });
 
 Route::middleware('api_token', 'permisos')->prefix('user')->group(function(){
-	Route::put('/register',[UsersController::class,'register']);
+	//Route::put('/register',[UsersController::class,'register']);
 	Route::get('/listar',[UsersController::class,'listar']);
 });
 

@@ -79,12 +79,12 @@ class UsersController extends Controller
 
 	            $user->api_token = $apitoken;
 	            $user->save();
-	            $respuesta['msg'] = "Login correcto".$user->api_token;
+	            $respuesta['msg'] = "Login correcto ".$user->api_token;
 
 
 			}else {
 	        	$respuesta['status'] = 0;
-		        $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage();		
+		        $respuesta['msg'] = "Se ha producido un error: ";		
 			}
 		}else{
 			$respuesta['status'] = 0;
