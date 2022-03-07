@@ -15,21 +15,30 @@ class VerificarApiToken
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $req, Closure $next)
     {
-        //Buscar al usuario
-        $apitoken = $request->api_token;
+        $respuesta = ["status" => 1, "msg" => ""];
+        $datos = $req->getContent();
+        $datos = json_decode($datos);
 
-        $user = User::where('api_token', $apitoken)->first();
-
-        if(!$user) {
-            $request['status'] = 0;
-            $request['msg'] = "Se ha producido un error: ";  
-
-        }else{
-            $request->user = $user;
-            return $next($request);
+        if (isset($datos->api_token)) {
+            $apitoken = $datos->api_token;
+            $user = User::where('api_token', $apitoken)->first();
+            //Pasar usuario
+            if ($user) {
+                $respuesta['status'] = 23;
+                $respuesta['msg'] = "Token correcto";
+                $req->user = $user;
+                return $next($req);
+            } else {
+                $respuesta['status'] = 24;
+                $respuesta['msg'] = "Usuario no encontrado";
+            }
+        } else {
+            $respuesta['status'] = 25;
+            $respuesta['msg'] = "Token no introducido";
         }
-        return response()->json($request);
+
+        return response()->json($respuesta);
     }
 }

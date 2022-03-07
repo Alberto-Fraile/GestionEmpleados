@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
@@ -79,7 +80,7 @@ class UsersController extends Controller
 
 	            $user->api_token = $apitoken;
 	            $user->save();
-	            $respuesta['msg'] = "Login correcto ".$user->api_token;
+	            $respuesta['msg'] = $user->api_token;
 
 
 			}else {
@@ -135,10 +136,14 @@ class UsersController extends Controller
     public function verPerfil(Request $req){
 
         $respuesta = ["status" => 1, "msg" => ""];
+        $datos = $req->getContent();
+        $datos = json_decode($datos);
+
         try{
-            $apitoken = $req->api_token;
+            $apitoken = $datos->api_token;
             $user = User::where('api_token', $apitoken)->first();
-            $respuesta['datos'] = $user;
+            $respuesta['empleado'] = $user;
+
         }catch(\Exception $e){
             $respuesta['status'] = 0;
             $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage();
@@ -152,18 +157,17 @@ class UsersController extends Controller
         $datos = $req->getContent();
         $datos = json_decode($datos);
 
-        //Buscar el email
-        $apitoken = $datos->api_token;
+        // $apitoken = $req->api_token;
     
         //Validacion
 	        
         try{
-            if(User::where('api_token', '=', $datos->api_token)->first()){
+            // if(User::where('api_token', '=', $req->api_token)->first()){
 
-                $user = User::where('api_token',$apitoken)->first();
+                // $user = User::where('api_token',$apitoken)->first();
                 
                 //verificamos el cargo del solicitante
-                if($user->puesto == 'directivo'){
+                if($req->user->puesto == 'directivo'){
 
                     $users = DB::table('users')
                     ->select(['name','puesto','salario'])
@@ -178,16 +182,11 @@ class UsersController extends Controller
                     ->get();
                 }
 
-                $respuesta['msg'] = $users;
-                
-            }else{
-                
-                $respuesta['msg'] = "Token invalido";
-            }
+            $respuesta['datos'] = $users;
             
         }catch(\Exception $e){
             $respuesta['status'] = 0;
-            $respuesta['msg'] = "Se ha producido un error: ".$e->getMessage();
+            $respuesta['msg'] = "Se ha producido un error: ";
         }
 
 	    return response()->json($respuesta);
